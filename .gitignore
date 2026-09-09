@@ -1,5 +1,13 @@
-.DS_Store
+# Environment
+venv/
 __pycache__/
-*.py[cod]
-.pytest_cache/
-.ipynb_checkpoints/
+*.pyc
+
+# Chunked source files - regenerable/reconstructable from the x60 concat, or re-derivable from raw production
+input_data/x60/MINERvALargeDataset_x60_v1/masteranadev_selected_events_[0-9][0-9].csv
+
+# Checkpoints - large binaries, regenerable from code + input_data
+output_data/checkpoints/*.pt
+
+# Archive - superseded code/figures/checkpoints, not needed in git history
+archive/

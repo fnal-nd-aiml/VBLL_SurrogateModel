@@ -1,0 +1,22 @@
+This is v1 of the dataset for the VBLL model using MINERvA dataset. The format is:
+#evt, 2,
+#1, muon, Emu true (value from truth_muon_E), pmux true (truth_muon_px), pmuy, pmuz, #2, proton Ep true (value from truth_proton_E), ppx true (truth_proton_px), ppy true, ppz true
+#1, muon, Emu (value from MasterAnaDev_muon_E), pmux (MasterAnaDev_muon_Px), pmuy, pmuz, #2, proton, Ep (value from MasterAnaDev_proton_E_fromdEdx), ppx (MasterAnaDev_proton_Px_fromdEdx), ppy, ppz
+
+This is the same format as v0, with ~60x more stat. This is the full stat for NDP.
+Please note this will be different from the dataset you'll get in August in:
+1. There is no PID likelihood
+2. There is no mis-match
+
+evt i, n true particles, l reconstructed particles, vertex x, vertex y, vertex z
+1st true, PID 1, PID 2,... PID 6, px, py, pz,
+2nd true, PID 1, PID 2,... PID 6, px, py, pz,
+...
+nth true, PID 1, PID 2,... PID 6, px, py, pz,
+1st reco, PID 1, PID 2,... PID 6, px, py, pz,
+2nd reco, PID 1, PID 2,... PID 6, px, py, pz,
+...
+lth reco, PID 1, PID 2,... PID 6, px, py, pz,
+#1, muon, Emu true (value from truth_muon_E), pmux true (truth_muon_px), pmuy, pmuz, #2, proton Ep true (value from truth_proton_E), ppx true (truth_proton_px), ppy true, ppz true
+#1, muon, Emu (value from MasterAnaDev_muon_E), pmux (MasterAnaDev_muon_Px), pmuy, pmuz, #2, proton, Ep (value from MasterAnaDev_proton_E_fromdEdx), ppx (MasterAnaDev_proton_Px_fromdEdx), ppy, ppz
+
