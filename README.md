@@ -125,7 +125,7 @@ $ENV/bin/python -m ipykernel install --prefix=/exp/icarus/data/users/sdey2/jupyt
 export JUPYTER_PATH=/exp/icarus/data/users/sdey2/jupyter/share/jupyter:$JUPYTER_PATH
 ```
 
-**Known gotchas:**
+**Known potential issues/errors along the way:**
 - `conda activate` is unreliable in notebook subshells (each `!` cell is a fresh subshell without conda's init hooks). Call binaries by full path instead: `$ENV/bin/python`.
 - `pip`'s own script can have a broken/stale shebang if the env was moved or partially rebuilt. Use `$ENV/bin/python -m pip ...` to bypass it entirely.
 - Packages needing C compilation (e.g. `pyzmq`) may fail on this node's older `gcc` (pre-C99 mode). Prefer `pip install --only-binary :all: <package>`.
