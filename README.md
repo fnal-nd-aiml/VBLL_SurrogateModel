@@ -270,7 +270,6 @@ Uses the same `split_seed`/`train_fraction` as the original run, so this reconst
 - Committed the `~/activate_vbll.sh` daily-setup routine to the README
 - **Follow-up flagged, not yet explained:** proton's outlier σ ratio stays near 1.0× under het at both scales, while muon reaches 2.5–2.8× — see [Known caveats](#-known-caveats)
 
-<<<<<<< HEAD
 ### 2026-09-08 — Repo reorganization
 - Restructured into `code/` / `input_data/` / `output_data/` / `archive/`
 - Confirmed the shuffle-fix (`data.py`) and NLL apples-to-apples fix (`train.py`) are both live in current code
@@ -289,6 +288,3 @@ Uses the same `split_seed`/`train_fraction` as the original run, so this reconst
 
 ---
 _Add a new entry above whenever you touch `data.py`, `train.py`, `model.py`, `vbll_patches.py`, or change the folder/naming convention. A few bullets is enough — what changed and why, not a full diff._
-=======
-_Add a new entry above whenever you touch `data.py`, `train.py`, `model.py`, `vbll_patches.py`, or change the folder/naming convention. One line is enough — what changed and why, not a full diff._
->>>>>>> c5463efcc391b0aa886892c4475db3b63a3f12ac
