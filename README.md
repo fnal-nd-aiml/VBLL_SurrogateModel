@@ -81,7 +81,7 @@ defaults, or the next run will silently overwrite the last one. 🚨
 
 ---
 
-## 🐍 Environment setup
+## 🐍 Environment Setup
 
 Runs on a dedicated conda environment — **not** the default kernel.
 
@@ -104,11 +104,37 @@ anything sizeable.
 | numpy | 2.4.4 |
 | pandas | 3.0.2 |
 
+### Daily setup (every fresh terminal session)
+
+```bash
+source ~/activate_vbll.sh
+```
+
+This one command handles everything: clears UPS/larsoft `PYTHONHOME`/
+`PYTHONPATH`/`LD_LIBRARY_PATH` conflicts, activates the `vbll_repro` conda
+env, and `cd`s into the project directory. Confirmed to resolve correctly:
+```bash
+$ source ~/activate_vbll.sh
+(vbll_repro) SL7> which python3
+/exp/icarus/data/users/sdey2/vbll_surrogate/conda/envs/vbll_repro/bin/python3
+```
+
+**Contents of `~/activate_vbll.sh`** (for reference, in case it's ever lost or needs recreating on a new machine):
+```bash
+#!/bin/bash
+unset PYTHONHOME
+unset PYTHONPATH
+unset LD_LIBRARY_PATH
+source ~/miniforge3/bin/activate
+conda activate vbll_repro
+cd /exp/icarus/app/users/sdey2/FDPSurrogateModel/VBLL_SurrogateModel
+```
+
 **In a notebook:** select kernel **"VBLL Repro (py3.12)"** from the kernel
 picker before running any cells. If it's not listed, reload the VS Code
 window.
 
-**One-time setup (already done for this env — reference only):**
+### One-time setup (already done for this env — reference only)
 ```bash
 conda create -p /exp/icarus/data/users/sdey2/vbll_surrogate/conda/envs/vbll_repro python=3.12 -y
 
@@ -125,7 +151,7 @@ $ENV/bin/python -m ipykernel install --prefix=/exp/icarus/data/users/sdey2/jupyt
 export JUPYTER_PATH=/exp/icarus/data/users/sdey2/jupyter/share/jupyter:$JUPYTER_PATH
 ```
 
-**Known gotchas:**
+**Known potential errors:**
 - `conda activate` is unreliable in notebook subshells (each `!` cell is a fresh subshell without conda's init hooks). Call binaries by full path instead: `$ENV/bin/python`.
 - `pip`'s own script can have a broken/stale shebang if the env was moved or partially rebuilt. Use `$ENV/bin/python -m pip ...` to bypass it entirely.
 - Packages needing C compilation (e.g. `pyzmq`) may fail on this node's older `gcc` (pre-C99 mode). Prefer `pip install --only-binary :all: <package>`.
@@ -237,9 +263,28 @@ Uses the same `split_seed`/`train_fraction` as the original run, so this reconst
 
 ## 📝 Changelog
 
-- **2026-09-09** — Reconstructed full eval stats (pull, CV, coverage, outlier probe) for all four current checkpoints (v0/x60 × std/het) directly from saved weights, no retraining. Set up a dedicated conda env + Jupyter kernel at `/exp/icarus/data/users/sdey2/vbll_surrogate/conda/envs/vbll_repro` (py3.12, CPU torch) after working around several environment issues: a stale/broken `pip` shebang from an env move, a corrupted pip cache causing repeated `IncompleteRead` errors, a `pyzmq` C99 compile failure (fixed via `--only-binary`), and Jupyter kernel registration hitting `nashome`'s disk quota via `--user` (fixed via `--prefix`). Identified proton's outlier σ ratio staying near 1.0× under het, reproducible at both scales — flagged as a follow-up, not yet explained.
-- **2026-09-08** — Reorganized repo into `code/` / `input_data/` / `output_data/` / `archive/`. Confirmed the shuffle-fix (`data.py`) and NLL apples-to-apples fix (`train.py`) are both live in current code. Fixed `run.py`'s hardcoded checkpoint/figure paths (was silently overwriting on every run — now uses `CFG['checkpoint_path']` / `CFG['figures_dir']` like `run_het.py` already did). Archived `run_old.py`/`data_old.py` (pre-shuffle-fix), `run_multifile.py`/`data_multifile.py` (superseded — multi-file logic now merged into `data.py`), and all pre-cleanup figure sets/checkpoints. Started `sdey2_dev` branch off `aobol/VBLL_SurrogateModel`.
-- **2026-08-16** — `x60` full dataset retrained with the reproducible pre-split shuffle (`split_seed`, `train_fraction` in `data.py`) — checkpoint saved as `best_model_large_v1.pt` (pre-dates current naming convention; superseded by `best_model_x60_std.pt`/`best_model_x60_het.pt`).
-- **2026-08-12** — `PatchedHetRegression` (`vbll_patches.py`) added, fixing a shape bug in `vbll==0.4.9`'s `HetRegression._get_train_loss_fn`. Train/val loss-curve mismatch fixed in `train.py` (predictive NLL computed on training batches, so train/val plot on the same scale; true ELBO objective tracked separately as `objective_total`). `v0` and original `x60`/`_00` slice checkpoints trained under the **old** ordered train/val split (pre-shuffle-fix) — see `archive/checkpoints/`.
+### 2026-09-09 — Eval reconstruction + environment setup
+- Reconstructed full eval stats (pull, CV, coverage, outlier probe) for all four checkpoints (v0/x60 × std/het) directly from saved weights — no retraining needed
+- Set up a dedicated conda env + Jupyter kernel: `/exp/icarus/data/users/sdey2/vbll_surrogate/conda/envs/vbll_repro` (py3.12, CPU torch)
+- Along the way, fixed: a stale/broken `pip` shebang from an env move, a corrupted pip cache (`IncompleteRead` loop), a `pyzmq` C99 compile failure (`--only-binary`), and Jupyter kernel registration hitting `nashome`'s quota via `--user` (`--prefix` instead)
+- Committed the `~/activate_vbll.sh` daily-setup routine to the README
+- **Follow-up flagged, not yet explained:** proton's outlier σ ratio stays near 1.0× under het at both scales, while muon reaches 2.5–2.8× — see [Known caveats](#-known-caveats)
 
-_Add a new entry above whenever you touch `data.py`, `train.py`, `model.py`, `vbll_patches.py`, or change the folder/naming convention. One line is enough — what changed and why, not a full diff._
+### 2026-09-08 — Repo reorganization
+- Restructured into `code/` / `input_data/` / `output_data/` / `archive/`
+- Confirmed the shuffle-fix (`data.py`) and NLL apples-to-apples fix (`train.py`) are both live in current code
+- Fixed `run.py`'s hardcoded checkpoint/figure paths — was silently overwriting on every run; now uses `CFG['checkpoint_path']` / `CFG['figures_dir']`, matching `run_het.py`
+- Archived: `run_old.py`/`data_old.py` (pre-shuffle-fix), `run_multifile.py`/`data_multifile.py` (superseded — logic merged into `data.py`), all pre-cleanup figure sets/checkpoints
+- Started `sdey2_dev` branch off `aobol/VBLL_SurrogateModel`
+
+### 2026-08-16 — x60 retrain with shuffle fix
+- Full x60 dataset retrained with the reproducible pre-split shuffle (`split_seed`, `train_fraction` in `data.py`)
+- Saved as `best_model_large_v1.pt` (pre-dates current naming convention; superseded by `best_model_x60_std.pt` / `best_model_x60_het.pt`)
+
+### 2026-08-12 — Het patch + loss-curve fix
+- `PatchedHetRegression` (`vbll_patches.py`) added — fixes a shape bug in `vbll==0.4.9`'s `HetRegression._get_train_loss_fn`
+- Train/val loss-curve mismatch fixed in `train.py` — predictive NLL now computed on training batches so train/val plot on the same scale; true ELBO objective tracked separately as `objective_total`
+- `v0` and original `x60`/`_00` slice checkpoints were trained under the **old** ordered train/val split (pre-shuffle-fix) — see `archive/checkpoints/`
+
+---
+_Add a new entry above whenever you touch `data.py`, `train.py`, `model.py`, `vbll_patches.py`, or change the folder/naming convention. A few bullets is enough — what changed and why, not a full diff._
